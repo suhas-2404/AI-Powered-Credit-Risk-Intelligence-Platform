@@ -1,0 +1,7 @@
+data/
+sql/
+.env
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+notebooks/chatbot_test.ipynb

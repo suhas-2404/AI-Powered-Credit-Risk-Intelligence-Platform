@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  credit-risk-platform:
+    build: .
+    ports:
+      - "8501:8501"
