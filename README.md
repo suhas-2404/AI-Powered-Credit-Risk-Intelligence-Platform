@@ -341,6 +341,131 @@ docker stop <container_id>
 
 ---
 
+# 🏗️ Architecture Overview
+
+```text
+                    User
+                      │
+                      ▼
+            Streamlit Dashboard
+                      │
+        ┌─────────────┼─────────────┐
+        ▼             ▼             ▼
+   XGBoost Model  Gemini Chatbot  Business Rules
+        │             │
+        │             ▼
+        │         SQL Query
+        │             ▼
+        └────── SQLite Database
+```
+
+### Components
+
+* **Streamlit UI** provides an interactive interface.
+* **XGBoost Model** predicts loan default probability.
+* **Business Rules Engine** converts predictions into risk categories.
+* **Gemini LLM** converts natural language into SQL queries.
+* **SQLite Database** stores processed credit risk data.
+* **Explainability Module** provides feature importance insights.
+
+---
+
+# ⚖️ Model Selection Rationale
+
+Several machine learning approaches were considered for credit risk prediction. XGBoost was selected due to its ability to handle tabular data effectively and its strong performance on imbalanced classification problems.
+
+### Why XGBoost?
+
+* Handles missing values efficiently.
+* Supports class imbalance handling.
+* Provides feature importance analysis.
+* Achieved the highest ROC-AUC score among tested models.
+* Widely adopted in financial risk modeling.
+
+---
+
+# 📉 Class Imbalance Strategy
+
+The Home Credit dataset contains a significant class imbalance:
+
+| Class       | Percentage |
+| ----------- | ---------- |
+| Non-Default | 91.93%     |
+| Default     | 8.07%      |
+
+To address this challenge:
+
+* XGBoost's class weighting mechanism was used.
+* ROC-AUC was selected as the primary evaluation metric.
+* Risk probabilities were calibrated into business-friendly risk bands.
+
+This approach improved the model's ability to identify default cases while maintaining overall performance.
+
+---
+
+# 🧠 Prompt Engineering Approach
+
+The Talk-to-Data chatbot uses Google Gemini to convert natural language questions into executable SQLite queries.
+
+### Prompt Constraints
+
+* Generate only SQLite-compatible SQL.
+* Use only columns available in the dataset.
+* Return executable SQL without additional explanations.
+* Prevent generation of unsupported database operations.
+* Minimize token usage through concise prompt design.
+
+### Example
+
+**User Question**
+
+```text
+How many customers defaulted?
+```
+
+**Generated SQL**
+
+```sql
+SELECT COUNT(SK_ID_CURR)
+FROM credit_data
+WHERE TARGET = 1;
+```
+
+---
+
+# 🎯 Design Decisions
+
+## Why XGBoost?
+
+XGBoost was selected because it performs exceptionally well on tabular data and handles class imbalance effectively. It also provides feature importance scores that improve model interpretability.
+
+## Why Streamlit?
+
+Streamlit was chosen for rapid development of interactive dashboards and machine learning applications with minimal frontend complexity.
+
+## Why SQLite?
+
+SQLite is lightweight, portable, and easy to integrate with the chatbot module for natural language to SQL interactions.
+
+## Why Gemini?
+
+Google Gemini was used to convert natural language questions into SQL queries, enabling business users to interact with data without SQL knowledge.
+
+---
+
+# ⚠️ Known Limitations
+
+* The model is trained on historical credit data and may require retraining for changing market conditions.
+* Chatbot performance depends on LLM availability and API quotas.
+* Explainability currently focuses on feature importance rather than individual SHAP explanations.
+* The platform uses a subset of engineered features and may benefit from additional external data sources.
+* Real-time model retraining is not currently implemented.
+* SQLite is suitable for demonstration purposes but may not scale for enterprise workloads.
+
+```
+```
+---
+
 # 📌 Future Enhancements
 
 * Real-time credit scoring API
